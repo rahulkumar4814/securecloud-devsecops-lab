@@ -1,0 +1,49 @@
+# ---- Secrets & credentials (never commit) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa*
+.aws/
+credentials
+
+# ---- Terraform (state can contain secrets & resource IDs) ----
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*.tfvars
+!example.tfvars
+
+# ---- Python ----
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.egg-info/
+*.db
+*.sqlite3
+
+# ---- Local reports (machine details / raw scanner output) ----
+# Curated evidence will be added under reports/evidence/ deliberately.
+reports/*
+!reports/evidence/
+!reports/.gitkeep
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
