@@ -26,8 +26,8 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 
 ## 3. Current phase and exact step
 - **Sprint:** 1 — Setup + application
-- **Step:** 1.4 — FastAPI "SecureCloud Notes API" + virtual env + pinned dependencies
-- **Status:** `[ ]` Ready to start (after progress-file commit)
+- **Step:** 1.5 — Unit tests with pytest
+- **Status:** `[ ]` Ready to start (after committing Step 1.4 on `feature/notes-api`)
 
 ## 4. Phase and step checklist (Fast track, ~25 hours, cost ₹0)
 
@@ -35,7 +35,7 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 - [x] 1.1 Read-only environment check (`scripts/env-check.ps1`) — verified 2026-10-19
 - [x] 1.2 Verify installed tools work: Docker engine + hello-world, Git identity, Python venv — verified 2026-10-19
 - [x] 1.3 GitHub account 2FA + noreply commit email (A); public repo `securecloud-devsecops-lab` + first commit (B) — verified 2026-10-19
-- [ ] 1.4 FastAPI "SecureCloud Notes API" + virtual env + pinned dependencies
+- [x] 1.4 FastAPI "SecureCloud Notes API" + virtual env + pinned dependencies — verified 2026-10-19
 - [ ] 1.5 Unit tests with pytest (health, notes CRUD)
 
 ### Sprint 2 — Secure container (~3 h)
@@ -76,16 +76,19 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 |---|---|---|
 | 1.1 Environment check | 2026-10-19 | `reports/env-check.txt` (run 14:43 IST) |
 | 1.2 Tool verification | 2026-10-19 | `reports/verify-tools.txt` (run 14:46 IST) |
+| 1.4 Notes API + venv + pinned deps | 2026-10-19 | `reports/smoke-test.txt` (15:14 IST): 7/7 expected status codes; 14 pinned packages |
 | 1.3 GitHub repo + first commit | 2026-10-19 | Commit `1683a7b` (noreply author) on `origin/main` at github.com/rahulkumar4814/securecloud-devsecops-lab; Gitleaks 0 leaks pre-commit |
 
 ## 6. Pending and blocked steps
-- Pending: commit progress-file update; then Step 1.4.
+- Pending: commit Step 1.4 on feature branch; then Step 1.5.
 - Blocked: none.
 
 ## 7. Commands executed and verified results
 | Date | Command | Verified result |
 |---|---|---|
 | 2026-10-19 | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\env-check.ps1` | Win 11 Pro 64-bit build 26200; PowerShell 5.1; 15.6 GB RAM; 229 GB free; i5-10400H; CurrentUser policy RemoteSigned. FOUND: winget 1.29, Git 2.55, Python 3.14.3, pip 26.0.1, Docker 29.0.1, WSL 3.0.3 (kali-linux v2, docker-desktop v2), VS Code 1.142, AWS CLI 2.32.5, Terraform 1.15.8, Trivy 0.74.0, Gitleaks 8.30.1. Semgrep present but crashes (traceback). MISSING: gh, checkov. "Virtualization in firmware: False" reported. |
+| 2026-10-19 | `git switch -c feature/notes-api`; `python -m venv .venv`; `pip install -r requirements.in`; `pip freeze \| Out-File -Encoding ascii requirements.txt` | Branch created; venv Python 3.14.3; requirements.txt ASCII, 14 pins (fastapi 0.146.0, starlette 1.9.0, pydantic 2.14.1, pydantic_core 2.50.1, uvicorn 0.54.0, …) |
+| 2026-10-19 | `scripts/smoke-test.ps1` | Server on 127.0.0.1 started; GET /health 200, POST /notes 201, GET /notes 200, GET /notes/1 200, GET /notes/9999 404, POST empty title 422, GET /notes/abc 422; server stopped |
 | 2026-10-19 | `gitleaks dir . --redact --verbose` | no leaks found (reported by Rahul) |
 | 2026-10-19 | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-tools.ps1` | Hypervisor detected (VBS + HVCI running); Git user.name set, user.email = personal Gmail, init.defaultBranch unset; Docker client/server 29.0.1 linux/amd64; `hello-world` printed "Hello from Docker!"; Python 3.14.3 venv OK, OpenSSL 3.0.18 |
 
@@ -101,6 +104,10 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 | 2026-10-19 | `.gitattributes` | Normalises line endings (LF; CRLF for .ps1) |
 | 2026-10-19 | `README.md` | Initial project overview |
 | 2026-10-19 | `reports/.gitkeep` | Keeps empty reports folder in Git |
+| 2026-10-19 | `app/__init__.py`, `app/db.py`, `app/main.py` | Notes API: /health, POST/GET /notes, GET /notes/{id}; parameterized SQL; Pydantic input limits (verified by smoke test) |
+| 2026-10-19 | `requirements.in` | Top-level deps: fastapi, uvicorn |
+| 2026-10-19 | `scripts/smoke-test.ps1` | Smoke test (run, verified) |
+| 2026-10-19 | `requirements.txt` | Generated lock file, 14 exact pins |
 
 ## 9. Security findings and remediation status
 | ID | Date | Finding | Severity | Detected by | Status |
@@ -131,16 +138,19 @@ _No cloud resources created._
 | 2026-10-19 | Use Python **3.14** (already installed) locally, in CI and in the Docker base image | One version everywhere avoids "works on my machine"; fall back to 3.13 only if a dependency lacks 3.14 wheels |
 | 2026-10-19 | Commit with GitHub **noreply** email, default branch `main` | Repo is public: a personal email in commit metadata is permanently exposed (spam/phishing/OSINT); `main` matches GitHub default |
 | 2026-10-19 | Local raw reports are git-ignored; curated evidence goes in `reports/evidence/` | Raw output contains machine details; commit only reviewed evidence |
+| 2026-10-19 | `requirements.in` (top-level) + `requirements.txt` (full pinned lock via `pip freeze`) | Reproducible builds; SCA scans exact versions; sub-dependencies are pinned too |
+| 2026-10-19 | API binds to 127.0.0.1 locally; SQLite; feature branch `feature/notes-api` | Never expose lab services on the LAN; simplest DB; real branch workflow from first code change |
 | 2026-10-19 | Skip installing gh and Checkov locally | gh optional (use github.com); Checkov runs in CI |
 | 2026-10-19 | Fallback if AWS signup is not possible: local AWS emulation (LocalStack Hobby plan) + local Kubernetes (kind) | Keeps the lab free; trade-off is no real GitHub-to-AWS OIDC evidence |
 
 ## 13. Next exact action
-Commit + push the progress-file update (`git add docs/DEVSECOPS_PROGRESS.md`, `git commit`, `git push`), reply done.
+Commit + push Step 1.4 on `feature/notes-api`, reply done.
 
 ## 14. Interview concepts learned
 - **Step 1.1:** DevSecOps = automated, policy-driven security inside the delivery pipeline; shift-left lowers fix cost. Baseline the build environment first — reproducible tool versions are part of supply-chain hygiene.
 - **Step 1.2:** "Installed" is not "working" — verify with a functional test (hello-world). On Windows, VBS/Hyper-V hides the firmware virtualization flag; confirm with `systeminfo`.
 - **Step 1.3:** Developer identity is supply-chain identity: enforce 2FA, use noreply commit email in public repos, scan for secrets *before* the first commit, and use `.gitignore` to block secrets/state by default. Always review `git status` and the commit author before pushing — history is permanent.
+- **Step 1.4:** Separate top-level deps (`requirements.in`) from a full lock file (`requirements.txt`) for reproducible builds and accurate SCA. Even 2 direct deps pulled 12 transitive ones (incl. `opentelemetry-api`) — most supply-chain risk is transitive. Validate input at the boundary (422) and use parameterized SQL.
 
 ## 15. Work log (what was done, why, outcome, next)
 | # | Date | What was done | Why | Outcome | Next |
@@ -162,3 +172,5 @@ Commit + push the progress-file update (`git add docs/DEVSECOPS_PROGRESS.md`, `g
 | 14 | 2026-10-19 | Rahul set noreply email + amended commit; push failed "repository not found" | Fix F-001, publish repo | F-001 fixed (commit 1683a7b, noreply author); push blocked: remote repo missing | Create/confirm GitHub repo, push |
 | 15 | 2026-10-19 | Claude re-checked repo after "done" | Verify push | Not pushed: `origin` URL points to GitHub profile page, not the repo | Reset origin URL, push |
 | 16 | 2026-10-19 | Rahul fixed remote URL and pushed; Claude verified `origin/main` = `1683a7b` and author = noreply | Publish repo safely | Step 1.3 complete | Commit progress update, then Step 1.4 |
+| 17 | 2026-10-19 | Verified 2nd commit `592d115` pushed; Claude wrote app files, `requirements.in`, `smoke-test.ps1` | Start Step 1.4 | Files ready, not yet run | Rahul runs setup + smoke test |
+| 18 | 2026-10-19 | Rahul ran setup + smoke test; Claude read report, checked branch, encoding, git status | Prove app works + reproducible deps | 7/7 status codes as expected; 14 pins, ASCII; .venv and smoke.db correctly git-ignored | Commit 1.4, then Step 1.5 |

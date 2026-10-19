@@ -1,0 +1,4 @@
+# Top-level runtime dependencies (human-edited).
+# Exact pinned versions of these AND their sub-dependencies live in requirements.txt (generated).
+fastapi
+uvicorn
