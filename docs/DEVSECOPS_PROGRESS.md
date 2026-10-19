@@ -26,15 +26,15 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 
 ## 3. Current phase and exact step
 - **Sprint:** 1 — Setup + application
-- **Step:** 1.3 (part B) — Create public GitHub repo, pre-commit secret scan, first commit and push
-- **Status:** `[>]` In progress (part A confirmed by Rahul; noreply email to be verified from first commit's author)
+- **Step:** 1.4 — FastAPI "SecureCloud Notes API" + virtual env + pinned dependencies
+- **Status:** `[ ]` Ready to start (after progress-file commit)
 
 ## 4. Phase and step checklist (Fast track, ~25 hours, cost ₹0)
 
 ### Sprint 1 — Setup + application (~4 h)
 - [x] 1.1 Read-only environment check (`scripts/env-check.ps1`) — verified 2026-10-19
 - [x] 1.2 Verify installed tools work: Docker engine + hello-world, Git identity, Python venv — verified 2026-10-19
-- [>] 1.3 GitHub account 2FA + noreply commit email (A); public repo `securecloud-devsecops-lab` + first commit (B)
+- [x] 1.3 GitHub account 2FA + noreply commit email (A); public repo `securecloud-devsecops-lab` + first commit (B) — verified 2026-10-19
 - [ ] 1.4 FastAPI "SecureCloud Notes API" + virtual env + pinned dependencies
 - [ ] 1.5 Unit tests with pytest (health, notes CRUD)
 
@@ -76,15 +76,17 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 |---|---|---|
 | 1.1 Environment check | 2026-10-19 | `reports/env-check.txt` (run 14:43 IST) |
 | 1.2 Tool verification | 2026-10-19 | `reports/verify-tools.txt` (run 14:46 IST) |
+| 1.3 GitHub repo + first commit | 2026-10-19 | Commit `1683a7b` (noreply author) on `origin/main` at github.com/rahulkumar4814/securecloud-devsecops-lab; Gitleaks 0 leaks pre-commit |
 
 ## 6. Pending and blocked steps
-- Pending: Step 1.3B — Rahul creates empty GitHub repo and runs init/scan/commit/push commands.
+- Pending: commit progress-file update; then Step 1.4.
 - Blocked: none.
 
 ## 7. Commands executed and verified results
 | Date | Command | Verified result |
 |---|---|---|
 | 2026-10-19 | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\env-check.ps1` | Win 11 Pro 64-bit build 26200; PowerShell 5.1; 15.6 GB RAM; 229 GB free; i5-10400H; CurrentUser policy RemoteSigned. FOUND: winget 1.29, Git 2.55, Python 3.14.3, pip 26.0.1, Docker 29.0.1, WSL 3.0.3 (kali-linux v2, docker-desktop v2), VS Code 1.142, AWS CLI 2.32.5, Terraform 1.15.8, Trivy 0.74.0, Gitleaks 8.30.1. Semgrep present but crashes (traceback). MISSING: gh, checkov. "Virtualization in firmware: False" reported. |
+| 2026-10-19 | `gitleaks dir . --redact --verbose` | no leaks found (reported by Rahul) |
 | 2026-10-19 | `powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\verify-tools.ps1` | Hypervisor detected (VBS + HVCI running); Git user.name set, user.email = personal Gmail, init.defaultBranch unset; Docker client/server 29.0.1 linux/amd64; `hello-world` printed "Hello from Docker!"; Python 3.14.3 venv OK, OpenSSL 3.0.18 |
 
 ## 8. Files created or modified
@@ -101,7 +103,9 @@ Laptop ──push──▶ GitHub (branch + PR + review)
 | 2026-10-19 | `reports/.gitkeep` | Keeps empty reports folder in Git |
 
 ## 9. Security findings and remediation status
-_None yet._
+| ID | Date | Finding | Severity | Detected by | Status |
+|---|---|---|---|---|---|
+| F-001 | 2026-10-19 | Commit `cd5e968` authored with personal Gmail instead of GitHub noreply address; would expose email permanently in public repo history | Low (privacy) | Claude review of `git log` before push | **Fixed 2026-10-19** — commit amended to `1683a7b` with noreply author; never pushed, so never exposed |
 
 ## 10. Cloud resources and cleanup status
 _No cloud resources created._
@@ -109,6 +113,7 @@ _No cloud resources created._
 ## 11. Errors encountered and fixes
 | Date | Error | Cause | Resolution |
 |---|---|---|---|
+| 2026-10-19 | `git push` → `fatal: repository '.../rahulkumar4814/securecloud-devsecops-lab.git/' not found` | GitHub repo not created yet, created under a different name/account, or browser signed in to a different account | **Resolved 2026-10-19:** repo created/confirmed and `origin` reset to `https://github.com/rahulkumar4814/securecloud-devsecops-lab.git`; push succeeded. Note: remote URL was then set to the profile page `https://github.com/rahulkumar4814?tab=repositories` by mistake; must be the repo `.git` URL |
 | 2026-10-19 | `semgrep --version` → Python traceback | Semgrep's native Windows support is limited; installed under Python 3.14 | Not fixing locally — Semgrep runs in GitHub Actions (Linux) by design |
 | 2026-10-19 | "Virtualization enabled in firmware: False" | Usually a false reading when Hyper-V/WSL 2 is already running (Windows hides the flag); WSL 2 distros exist | **Resolved 2026-10-19:** false reading — `systeminfo` shows "A hypervisor has been detected" (VBS running) and Docker ran `hello-world` |
 
@@ -130,11 +135,12 @@ _No cloud resources created._
 | 2026-10-19 | Fallback if AWS signup is not possible: local AWS emulation (LocalStack Hobby plan) + local Kubernetes (kind) | Keeps the lab free; trade-off is no real GitHub-to-AWS OIDC evidence |
 
 ## 13. Next exact action
-Create empty public repo `securecloud-devsecops-lab` on GitHub, run Step 1.3B commands, reply done.
+Commit + push the progress-file update (`git add docs/DEVSECOPS_PROGRESS.md`, `git commit`, `git push`), reply done.
 
 ## 14. Interview concepts learned
 - **Step 1.1:** DevSecOps = automated, policy-driven security inside the delivery pipeline; shift-left lowers fix cost. Baseline the build environment first — reproducible tool versions are part of supply-chain hygiene.
 - **Step 1.2:** "Installed" is not "working" — verify with a functional test (hello-world). On Windows, VBS/Hyper-V hides the firmware virtualization flag; confirm with `systeminfo`.
+- **Step 1.3:** Developer identity is supply-chain identity: enforce 2FA, use noreply commit email in public repos, scan for secrets *before* the first commit, and use `.gitignore` to block secrets/state by default. Always review `git status` and the commit author before pushing — history is permanent.
 
 ## 15. Work log (what was done, why, outcome, next)
 | # | Date | What was done | Why | Outcome | Next |
@@ -151,3 +157,8 @@ Create empty public repo `securecloud-devsecops-lab` on GitHub, run Step 1.3B co
 | 10 | 2026-10-19 | Rahul ran `verify-tools.ps1`; Claude read report | Prove tools work | All 5 checks passed; virtualization question resolved; found personal email in Git config (privacy risk for public repo) | Step 1.3A |
 | 11 | 2026-10-19 | Rahul confirmed 2FA + noreply email + git config (part A) | Protect account and email privacy | Confirmed by Rahul; Claude will verify email from commit author | Step 1.3B |
 | 12 | 2026-10-19 | Claude created `.gitignore`, `.gitattributes`, `README.md`, `reports/.gitkeep` | Prevent secrets/state ever entering Git before the first commit | Files ready, not yet committed | Rahul runs 1.3B |
+| 13a | 2026-10-19 | Rahul reported `gitleaks dir . --redact --verbose` → "no leaks found" | Pre-commit secret scan | Verified by Rahul's output: 0 leaks before first commit | — |
+| 13 | 2026-10-19 | Rahul ran Gitleaks/init/commit/push; Claude inspected `.git` and `git log` | Verify, don't assume | 7 correct files committed (cd5e968); author email is personal Gmail (F-001); push not completed | Fix email, amend, push |
+| 14 | 2026-10-19 | Rahul set noreply email + amended commit; push failed "repository not found" | Fix F-001, publish repo | F-001 fixed (commit 1683a7b, noreply author); push blocked: remote repo missing | Create/confirm GitHub repo, push |
+| 15 | 2026-10-19 | Claude re-checked repo after "done" | Verify push | Not pushed: `origin` URL points to GitHub profile page, not the repo | Reset origin URL, push |
+| 16 | 2026-10-19 | Rahul fixed remote URL and pushed; Claude verified `origin/main` = `1683a7b` and author = noreply | Publish repo safely | Step 1.3 complete | Commit progress update, then Step 1.4 |
